@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ทายเสียงดนตรีไทย AR</title>
+<link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg1:#ffe8f3;--bg2:#dff1ff;--ink:#3b2f4a;--card:#ffffffd9;--soft:#8a7d99;--c1:#ff8fab;--c2:#ffb347;--c3:#5bb8f5;--c4:#5fd39a;--ok:#2fbf71;--no:#ff6b6b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#2b2140;--bg2:#1b2a44;--ink:#f6eefc;--card:#3a2f55d9;--soft:#b9aed0}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{font-family:'Mali','Noto Sans Thai',sans-serif;color:var(--ink);background:linear-gradient(160deg,var(--bg1),var(--bg2));overflow:hidden}
+#cam{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:0}
+body.ar #cam{display:block}
+.screen{position:fixed;inset:0;z-index:2;display:none;flex-direction:column;align-items:center;padding:16px;overflow:auto}
+.screen.on{display:flex}
+.card{background:var(--card);backdrop-filter:blur(10px);border-radius:26px;padding:18px;box-shadow:0 8px 24px #0002;width:100%;max-width:520px}
+h1{margin:6px 0;font-size:30px;text-align:center;line-height:1.2}
+.sub{text-align:center;color:var(--soft);margin:0 0 12px}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.chip{padding:5px 14px;border-radius:99px;color:#fff;font-weight:700}
+.btn{font:inherit;font-weight:700;font-size:18px;border:0;border-radius:99px;padding:14px 22px;color:#fff;background:var(--c1);box-shadow:0 5px 0 #0002;width:100%;margin-top:10px;cursor:pointer}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #0002}
+.btn.b2{background:var(--c3)}
+.top{display:flex;justify-content:space-between;width:100%;max-width:520px;font-weight:700;margin-bottom:8px}
+.top span{background:var(--card);padding:6px 14px;border-radius:99px}
+#hero{font-size:64px;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{transform:scale(1.12)}}
+#listen{width:130px;height:130px;border-radius:50%;border:0;font:inherit;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--c1),var(--c2));box-shadow:0 8px 0 #0003,0 0 0 10px #ffffff66;font-size:18px;cursor:pointer;margin:8px 0 14px}
+#listen.play{animation:pulse .6s infinite}
+.q{font-weight:700;text-align:center;background:var(--card);padding:6px 16px;border-radius:99px;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:520px}
+.b{transform:translate(calc(var(--px,0)*var(--d)*1px),calc(var(--py,0)*var(--d)*1px));transition:transform .15s}
+.b button{font:inherit;width:100%;border:3px solid #fff;border-radius:28px;padding:14px 6px;background:var(--card);backdrop-filter:blur(8px);color:var(--ink);box-shadow:0 8px 20px #0002;cursor:pointer;animation:bob 3s ease-in-out infinite}
+.b:nth-child(2) button{animation-delay:-.7s}.b:nth-child(3) button{animation-delay:-1.4s}.b:nth-child(4) button{animation-delay:-2.1s}
+@keyframes bob{50%{transform:translateY(-8px) rotate(1.5deg)}}
+.b .e{font-size:44px;display:block}.b .n{font-weight:700;font-size:18px}
+.b button.ok{background:var(--ok);color:#fff;animation:none}.b button.no{background:var(--no);color:#fff;animation:none}
+#fb{text-align:center;min-height:90px;margin-top:12px}
+#fb p{margin:4px 0}
+.stars{font-size:40px}
+</style>
+</head>
+<body>
+<video id="cam" playsinline muted></video>
+
+<section class="screen on" id="s0">
+ <div class="card" style="margin-top:6vh">
+  <div style="text-align:center;font-size:56px">🎶🪕🥁🪈</div>
+  <h1>ทายเสียงดนตรีไทย</h1>
+  <p class="sub">ฟังเสียงแล้วแตะเครื่องดนตรีที่ใช่ให้ถูก!</p>
+  <div class="chips"><span class="chip" style="background:var(--c1)">ดีด</span><span class="chip" style="background:var(--c2)">สี</span><span class="chip" style="background:var(--c3)">ตี</span><span class="chip" style="background:var(--c4)">เป่า</span></div>
+  <button class="btn" id="bAR">📷 เล่นแบบ AR (เปิดกล้อง)</button>
+  <button class="btn b2" id="bNorm">🎮 เล่นแบบปกติ</button>
+  <p class="sub" style="margin-top:12px;font-size:14px">ใช้หูฟังหรือเปิดเสียงให้ดังพอนะ 🎧</p>
+ </div>
+</section>
+
+<section class="screen" id="s1">
+ <div class="top"><span id="rd">ข้อ 1/10</span><span id="sc">⭐ 0</span></div>
+ <div class="q">เสียงนี้คือเครื่องดนตรีอะไรนะ?</div>
+ <button id="listen">🔊<br>ฟังเสียง</button>
+ <div class="grid" id="grid"></div>
+ <div id="fb"></div>
+</section>
+
+<section class="screen" id="s2">
+ <div class="card" style="margin-top:8vh;text-align:center">
+  <div class="stars" id="st"></div>
+  <h1 id="rs"></h1>
+  <p class="sub" id="rm"></p>
+  <button class="btn" id="again">🔁 เล่นอีกครั้ง</button>
+ </div>
+</section>
+
+<script>
+const $=s=>document.querySelector(s);
+let ctx,out,NB;
+const N=(b,s)=>b*Math.pow(2,s/12);
+function init(){
+ if(ctx){ctx.resume();return}
+ ctx=new (window.AudioContext||window.webkitAudioContext)();
+ const comp=ctx.createDynamicsCompressor();out=ctx.createGain();out.gain.value=.8;
+ /* ห้องเสียงเล็กๆ */
+ const cv=ctx.createConvolver(),wet=ctx.createGain(),ir=ctx.createBuffer(2,ctx.sampleRate*1.6,ctx.sampleRate);
+ for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3.2)}
+ cv.buffer=ir;wet.gain.value=.28;out.connect(cv);cv.connect(wet);wet.connect(comp);out.connect(comp);comp.connect(ctx.destination);
+ NB=ctx.createBuffer(1,ctx.sampleRate,ctx.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+}
+function tone(t,f,a,dec,v){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=f;g.gain.setValueAtTime(v*a,t);g.gain.exponentialRampToValueAtTime(.0001,t+dec);o.connect(g).connect(out);o.start(t);o.stop(t+dec+.05)}
+function nz(t,dur,type,fq,q,v){const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();s.buffer=NB;s.loop=true;f.type=type;f.frequency.value=fq;f.Q.value=q;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f).connect(g).connect(out);s.start(t);s.stop(t+dur+.05)}
+/* ดีด: Karplus-Strong (จำลองสายที่ถูกดีด) */
+function ks(t,f,dur,damp,br,v){
+ const sr=ctx.sampleRate,n=Math.max(2,Math.round(sr/f)),b=new Float32Array(n);let p=0;
+ for(let i=0;i<n;i++){p=p+((Math.random()*2-1)-p)*br;b[i]=p}
+ const L=Math.floor(sr*dur),buf=ctx.createBuffer(1,L,sr),d=buf.getChannelData(0);
+ for(let i=0,k=0;i<L;i++){const k2=(k+1)%n;d[i]=b[k];b[k]=damp*.5*(b[k]+b[k2]);k=k2}
+ const s=ctx.createBufferSource(),g=ctx.createGain(),b1=ctx.createBiquadFilter(),b2=ctx.createBiquadFilter();s.buffer=buf;g.gain.value=v*(1.4-br*.6)*(.85+Math.random()*.3);b1.type='peaking';b1.frequency.value=220;b1.gain.value=6;b1.Q.value=1.2;b2.type='peaking';b2.frequency.value=900;b2.gain.value=4;b2.Q.value=1;s.connect(b1).connect(b2).connect(g).connect(out);s.start(t);nz(t,.012,'bandpass',2500,1,.18)}
+/* สี/เป่า: เสียงต่อเนื่อง (harmonics + ฟอร์มันต์ + ลมหายใจ) */
+function voice(t,notes,c){
+ const o=ctx.createOscillator(),im=new Float32Array(c.h.length+1);c.h.forEach((a,i)=>im[i+1]=a);
+ o.setPeriodicWave(ctx.createPeriodicWave(new Float32Array(im.length),im));
+ const lfo=ctx.createOscillator(),ld=ctx.createGain();lfo.frequency.value=c.v[0]*(.95+Math.random()*.1);ld.gain.setValueAtTime(c.v[1]*.2,t);ld.gain.linearRampToValueAtTime(c.v[1],t+.6);lfo.connect(ld).connect(o.detune);
+ const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=c.lp;
+ const env=ctx.createGain();env.gain.value=0;const mix=ctx.createGain();mix.gain.value=.5;
+ o.connect(lp);lp.connect(mix);
+ (c.f||[]).forEach(([fq,q,g])=>{const f=ctx.createBiquadFilter(),gg=ctx.createGain();f.type='bandpass';f.frequency.value=fq;f.Q.value=q;gg.gain.value=g;lp.connect(f);f.connect(gg).connect(mix)});
+ mix.connect(env);env.connect(out);
+ if(c.n){const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();s.buffer=NB;s.loop=true;f.type='bandpass';f.frequency.value=c.nf||3000;f.Q.value=1.5;g.gain.value=c.n;s.connect(f).connect(g).connect(env);s.start(t);s.stop(t+notes.reduce((a,x)=>a+x[1],0)+.4)}
+ let tt=t;
+ notes.forEach(([s,d])=>{
+  if(s!==null){if(c.sc)o.frequency.setValueAtTime(N(c.b,s)*c.sc,tt);o.frequency.setTargetAtTime(N(c.b,s),tt,c.gl);const pk=c.vol*(.85+Math.random()*.3);env.gain.setTargetAtTime(pk*1.15,tt,c.a);env.gain.setTargetAtTime(pk*.9,tt+c.a*3,.15);env.gain.setTargetAtTime(0,tt+d-.07,.05);if(c.ch)nz(tt,.06,'bandpass',N(c.b,s)*c.ch,2,.25)}
+  tt+=d});
+ o.frequency.value=c.b;o.start(t);lfo.start(t);o.stop(tt+.4);lfo.stop(tt+.4);return tt-t}
+const saw=n=>Array.from({length:n},(_,i)=>1/Math.pow(i+1,1));
+const bar=(t,f)=>{const v=.22+Math.random()*.1;tone(t,f,1,.55,v);tone(t,f*2.01,.18,.3,v);tone(t,f*3.1,.35,.14,v);tone(t,f*6.3,.12,.07,v);tone(t,f*.5,.25,.18,v);nz(t,.025,'bandpass',3200,1,.25);nz(t,.04,'lowpass',900,1,.18)};
+const gong=(t,f)=>{[[1,1,2.4],[2.02,.5,1.7],[2.76,.4,1.3],[4.07,.2,.8],[1.006,.8,2.5]].forEach(([r,a,d])=>tone(t,f*r,a,d,.22));nz(t,.08,'bandpass',f*3,1,.15);tone(t,f*.5,.5,.6,.2)};
+const ching=(t,o)=>{[2400,3700,5200,7300].forEach((f,i)=>tone(t,f,1/(i+1),o?.8:.09,.13));nz(t,.02,'highpass',5000,.7,.3)};
+const drum=(t,f,dec,sl)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(f*1.8,t);o.frequency.exponentialRampToValueAtTime(f,t+.07);g.gain.setValueAtTime(.9,t);g.gain.exponentialRampToValueAtTime(.0001,t+dec);o.connect(g).connect(out);o.start(t);o.stop(t+dec+.05);if(sl)nz(t,.05,'bandpass',2200,1.2,.5);nz(t,.03,'lowpass',400,1,.4)};
+const run=(t,arr,step,fn)=>{arr.forEach((s,i)=>fn(t+i*step+(Math.random()-.5)*step*.12,s));return arr.length*step};
+
+const I=[
+{id:'jakhe',n:'จะเข้',c:0,e:'🐊',info:'เครื่องดีด 3 สาย รูปร่างเหมือนจระเข้',p:t=>run(t,[0,4,7,9,7,12,9,7,4,0],.22,(x,s)=>{ks(x,N(220,s),1.8,.997,.5,.9);ks(x,N(440,s),1.4,.996,.6,.4)})+1},
+{id:'phin',n:'พิณ',c:0,e:'🪕',info:'เครื่องดีดของชาวอีสาน เสียงใส แหลมกังวาน',p:t=>run(t,[0,0,3,5,3,0,7,5,3,0],.2,(x,s)=>ks(x,N(165,s),1.3,.993,.9,1))+1},
+{id:'sueng',n:'ซึง',c:0,e:'🎸',info:'เครื่องดีดของภาคเหนือ ดีดรัวเสียงแจ๋วๆ',p:t=>run(t,[0,0,7,0,0,5,3,0,0,7],.11,(x,s)=>{ks(x,N(330,s),.9,.99,1,.9);ks(x,N(330,s)*1.004,.9,.99,1,.6)})+1},
+{id:'saw-u',n:'ซออู้',c:1,e:'🥥',info:'เครื่องสี กะโหลกทำจากกะลามะพร้าว เสียงทุ้มนุ่ม',p:t=>voice(t,[[0,.7],[4,.4],[7,.4],[5,.5],[2,.4],[0,1]],{b:196,h:saw(14),lp:1300,f:[[300,4,.9],[700,3,.5]],n:.05,nf:2500,v:[5.2,9],gl:.07,a:.07,vol:.8,sc:.975})},
+{id:'saw-duang',n:'ซอด้วง',c:1,e:'🎻',info:'เครื่องสี เสียงแหลมใส เหมือนเสียงร้องเล็กๆ',p:t=>voice(t,[[0,.35],[2,.35],[4,.35],[7,.5],[4,.3],[2,.3],[0,.7]],{b:440,h:saw(18),lp:3600,f:[[1500,5,1.1]],n:.04,nf:4000,v:[6,10],gl:.03,a:.05,vol:.6,sc:.98})},
+{id:'ranad',n:'ระนาดเอก',c:2,e:'🪵',info:'เครื่องตี ใช้ไม้ตีลูกระนาดทำจากไม้หรือไม้ไผ่',p:t=>run(t,[0,2,4,7,9,7,4,2,0,4,7,12,9,7,4,0],.13,(x,s)=>bar(x,N(523,s)))+.6},
+{id:'gong',n:'ฆ้องวง',c:2,e:'🔔',info:'เครื่องตี ทำจากโลหะสัมฤทธิ์ เสียงกังวานยาว',p:t=>run(t,[0,2,4,2,7,4,0],.5,(x,s)=>gong(x,N(262,s)))+1.8},
+{id:'ching',n:'ฉิ่ง',c:2,e:'✨',info:'เครื่องตี ควบคุมจังหวะ ฉิ่ง ฉับ ฉิ่ง ฉับ',p:t=>{[0,.5,1,1.5,2,2.25,2.5].forEach((d,i)=>ching(t+d,[1,0,1,0,1,1,0][i]));return 3.4}},
+{id:'taphon',n:'ตะโพน',c:2,e:'🥁',info:'เครื่องตี หุ่นกลอง 2 หน้า ผู้นำจังหวะของวงปี่พาทย์',p:t=>{[[0,150,.25,1],[.3,110,.35,0],[.6,150,.2,1],[.75,150,.2,1],[1.05,110,.4,0],[1.5,150,.25,1],[1.8,110,.5,0]].forEach(([d,f,dc,s])=>drum(t+d,f,dc,s));return 2.5}},
+{id:'khlui',n:'ขลุ่ย',c:3,e:'🪈',info:'เครื่องเป่า ทำจากไม้ไผ่ เสียงนุ่มนวลมีลมแทรก',p:t=>voice(t,[[0,.6],[2,.5],[4,.5],[7,.9],[4,.4],[2,.4],[0,1.1]],{b:523,h:[1,.12,.04],lp:4000,n:.07,nf:3200,v:[5,12],gl:.04,a:.08,vol:.9,ch:2})},
+{id:'pi',n:'ปี่ใน',c:3,e:'🎷',info:'เครื่องเป่า ลิ้นคู่ เสียงแหลมนาสิกคมชัด',p:t=>voice(t,[[0,.25],[2,.25],[4,.25],[7,.55],[5,.2],[4,.2],[2,.2],[0,.9]],{b:392,h:[1,.3,.8,.2,.6,.15,.4,.1,.25],lp:3000,f:[[1100,6,1.2],[2200,5,.8]],n:.02,nf:2000,v:[4.5,6],gl:.02,a:.03,vol:.55,sc:.985,ch:1.5})},
+{id:'khaen',n:'แคน',c:3,e:'🎋',info:'เครื่องเป่าของอีสาน ทำจากไม้ไผ่หลายลำ เสียงเป็นคอร์ด',p:t=>{const d=voice(t,[[0,.4],[3,.4],[5,.4],[7,.8],[5,.4],[3,.4],[0,.9]],{b:330,h:[1,.5,.6,.3,.2],lp:2600,f:[[900,6,1]],n:.05,nf:2500,v:[4,5],gl:.01,a:.05,vol:.7,ch:3});[[0,.6],[7,.5],[12,.4]].forEach(([s,v])=>voice(t,[[s,d]],{b:165,h:[1,.5,.6,.3,.2],lp:2200,f:[[900,6,1]],n:.03,nf:2500,v:[4,3],gl:.01,a:.1,vol:.4}));return d}}
+];
+const CAT=[['ดีด','--c1'],['สี','--c2'],['ตี','--c3'],['เป่า','--c4']];
+let busy=false,cur=null,gen=0;
+/* ถ้ามีไฟล์เสียงจริง audio/<id>.mp3 จะใช้ไฟล์นั้นก่อน ไม่มีก็ใช้เสียงสังเคราะห์ */
+function playSound(it,done){
+ init();busy=true;$('#listen').classList.add('play');const my=++gen;let used=false;
+ const fin=d=>setTimeout(()=>{if(my===gen){busy=false;$('#listen').classList.remove('play');done&&done()}},d*1000);
+ const synth=()=>{if(used)return;used=true;fin(it.p(ctx.currentTime+.05)+.2)};
+ try{const a=new Audio('audio/'+it.id+'.mp3');a.onerror=synth;a.onended=()=>{if(!used){used=true;fin(0)}};a.play().catch(()=>{});
+  setTimeout(()=>{if(a.readyState===0)synth()},700)}catch(e){synth()}
+}
+/* AR: กล้อง + ไจโร */
+async function startCam(){
+ try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});$('#cam').srcObject=s;await $('#cam').play();document.body.classList.add('ar')}catch(e){alert('เปิดกล้องไม่ได้ จึงเล่นแบบปกติให้นะ 😊')}
+ try{if(window.DeviceOrientationEvent&&DeviceOrientationEvent.requestPermission)await DeviceOrientationEvent.requestPermission()}catch(e){}
+}
+const sp=(x,y)=>{document.documentElement.style.setProperty('--px',Math.max(-1,Math.min(1,x)));document.documentElement.style.setProperty('--py',Math.max(-1,Math.min(1,y)))};
+addEventListener('deviceorientation',e=>{if(e.gamma!=null)sp((e.gamma||0)/25,((e.beta||0)-50)/25)});
+addEventListener('mousemove',e=>sp((e.clientX/innerWidth-.5)*2,(e.clientY/innerHeight-.5)*2));
+/* เกม */
+let rnd=0,score=0,order=[],ok=0;
+const show=id=>{document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id))};
+function start(){rnd=0;score=0;ok=0;order=[...I].sort(()=>Math.random()-.5).slice(0,10);show('s1');next()}
+function next(){
+ if(rnd>=10)return end();
+ cur=order[rnd];rnd++;$('#rd').textContent='ข้อ '+rnd+'/10';$('#sc').textContent='⭐ '+score;$('#fb').innerHTML='';
+ const opts=[cur,...I.filter(x=>x!==cur).sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);
+ $('#grid').innerHTML='';
+ opts.forEach((o,i)=>{const d=document.createElement('div');d.className='b';d.style.setProperty('--d',[14,-10,-14,10][i]);d.innerHTML='<button><span class="e">'+o.e+'</span><span class="n">'+o.n+'</span></button>';d.firstChild.onclick=()=>pick(o,d.firstChild);$('#grid').appendChild(d)});
+ playSound(cur);
+}
+let locked=false;
+function pick(o,btn){
+ if(locked)return;locked=true;const right=o===cur;
+ btn.classList.add(right?'ok':'no');
+ if(right){score+=10;ok++}else[...document.querySelectorAll('.b button')].forEach(b=>{if(b.querySelector('.n').textContent===cur.n)b.classList.add('ok')});
+ $('#sc').textContent='⭐ '+score;
+ const [cn,cv]=CAT[cur.c];
+ $('#fb').innerHTML='<div class="card"><div style="font-size:22px;font-weight:700">'+(right?'🎉 เก่งมาก ถูกต้อง!':'😅 ยังไม่ใช่ นะ ลองจำเสียงไว้!')+'</div><p>'+cur.e+' <b>'+cur.n+'</b> เป็นเครื่อง<span class="chip" style="background:var('+cv+');margin-left:6px">'+cn+'</span></p><p style="color:var(--soft);font-size:14px">'+cur.info+'</p><button class="btn" id="nx">'+(rnd>=10?'ดูคะแนน 🏆':'ข้อต่อไป ➜')+'</button></div>';
+ $('#nx').onclick=()=>{locked=false;next()};
+}
+function end(){
+ show('s2');const st=ok>=9?3:ok>=6?2:ok>=3?1:0;
+ $('#st').textContent='⭐'.repeat(st)+'☆'.repeat(3-st);$('#rs').textContent='ได้ '+score+' คะแนน';
+ $('#rm').textContent='ตอบถูก '+ok+' จาก 10 ข้อ — '+(st==3?'หูเทพมากๆ! 🎊':st==2?'เก่งมาก ใกล้เต็มแล้ว!':'ฝึกฟังอีกนิด เดี๋ยวเก่งแน่ 💪');
+}
+$('#bAR').onclick=async()=>{init();await startCam();start()};
+$('#bNorm').onclick=()=>{init();start()};
+$('#again').onclick=start;
+$('#listen').onclick=()=>{if(cur&&!busy)playSound(cur)};
+</script>
+</body>
+</html>
